@@ -15,8 +15,11 @@ public class Program2 {
 		
 		DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
 		
-		System.out.println("===Test 2 : Department delete===");
-		departmentDao.deleteById(8);
+		Department dep = new Department(8, "NonAnimators");
+		dep.setName("LittleAnime");
+		departmentDao.update(dep);
+		
+		
 		
 	}
 
