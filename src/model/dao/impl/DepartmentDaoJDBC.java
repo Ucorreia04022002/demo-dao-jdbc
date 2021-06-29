@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +32,8 @@ public class DepartmentDaoJDBC implements  DepartmentDao{
 					"INSERT INTO department "
 					+ "(Id, Name) "
 					+ "VALUES "
-					+ "(?, ?) ");
+					+ "(?, ?) ",
+					Statement.RETURN_GENERATED_KEYS);
 			st.setInt(1, obj.getId());
 			st.setString(2, obj.getName());
 			
@@ -42,16 +44,7 @@ public class DepartmentDaoJDBC implements  DepartmentDao{
 				ResultSet rs = st.getGeneratedKeys();
 				if (rs.next()) {
 					int id = rs.getInt(1);
-				}
-				while (rs.next()) {
-					Integer ide = rs.getInt(1);
-					String name = rs.getString(2);
-					set.add(new Department(ide, name));
-				}
-				for (Department depi : set) {
-					if (depi.getId() == rs.getInt(1)) {
-						throw new DbException("This department id already exist!!");
-					}
+					obj.setId(id);
 				}
 				
 				DB.closeResultSet(rs);
