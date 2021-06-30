@@ -15,9 +15,8 @@ public class Program2 {
 		
 		DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
 		
-		Department dep = new Department(8, "NonAnimators");
-		dep.setName("LittleAnime");
-		departmentDao.update(dep);
+		Department dep = new Department(7, "NonAnimators");
+		departmentDao.insert(dep);
 		
 		
 		

@@ -27,6 +27,7 @@ public class DepartmentDaoJDBC implements  DepartmentDao{
 	public void insert(Department obj) {
 		PreparedStatement st = null;
 		try {
+			conn.setAutoCommit(false);
 			st = conn.prepareStatement(
 				"INSERT INTO department " +
 				"(Name) " +
@@ -48,9 +49,15 @@ public class DepartmentDaoJDBC implements  DepartmentDao{
 			else {
 				throw new DbException("Unexpected error! No rows affected!");
 			}
+			conn.commit();
 		}
 		catch (SQLException e) {
-			throw new DbException(e.getMessage());
+			try {
+				conn.rollback();
+				throw new DbException("Insert rolled back! caused by: "+ e.getMessage());
+			} catch (SQLException e1) {
+				throw new DbException("Error trying to roll back! caused by: "+ e1.getMessage());
+			}
 		} 
 		finally {
 			DB.closeStatement(st);
@@ -62,6 +69,7 @@ public class DepartmentDaoJDBC implements  DepartmentDao{
 	public void update(Department obj) {
 		PreparedStatement st = null;
 		try {
+			conn.setAutoCommit(false);
 			st = conn.prepareStatement(
 					"UPDATE department "
 					+ "SET Name = ? "
@@ -69,10 +77,16 @@ public class DepartmentDaoJDBC implements  DepartmentDao{
 			st.setString(1, obj.getName());
 			st.setInt(2, obj.getId());
 			st.executeUpdate();
+			conn.commit();
 		}
 		catch (SQLException e) {
-			throw new DbException(e.getMessage());
-		}
+			try {
+				conn.rollback();
+				throw new DbException("Update rolled back! caused by: "+ e.getMessage());
+			} catch (SQLException e1) {
+				throw new DbException("Error trying to roll back! caused by: "+ e1.getMessage());
+			}
+		} 
 		finally {
 			DB.closeStatement(st);
 			
@@ -84,16 +98,23 @@ public class DepartmentDaoJDBC implements  DepartmentDao{
 	public void deleteById(Integer id) {
 		PreparedStatement st = null;
 		try {
+			conn.setAutoCommit(false);
 			st = conn.prepareStatement("DELETE FROM department WHERE Id = ?");
 			st.setInt(1, id);		
 			int rows = st.executeUpdate();
 			if (rows == 0) {
 				throw new DbException("non existent id selected");
 			}
+			conn.commit();
 		}
 		catch (SQLException e) {
-			throw new DbException(e.getMessage());
-		}
+			try {
+				conn.rollback();
+				throw new DbException("Delete rolled back! caused by: "+ e.getMessage());
+			} catch (SQLException e1) {
+				throw new DbException("Error trying to roll back! caused by: "+ e1.getMessage());
+			}
+		} 
 		finally {
 			DB.closeStatement(st);
 		}
@@ -106,6 +127,7 @@ public class DepartmentDaoJDBC implements  DepartmentDao{
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
+			conn.setAutoCommit(false);
 			st = conn.prepareStatement(
 				"SELECT * FROM department WHERE Id = ?");
 			st.setInt(1, id);
@@ -116,11 +138,17 @@ public class DepartmentDaoJDBC implements  DepartmentDao{
 				obj.setName(rs.getString("Name"));
 				return obj;
 			}
+			conn.commit();
 			return null;
 		}
 		catch (SQLException e) {
-			throw new DbException(e.getMessage());
-		}
+			try {
+				conn.rollback();
+				throw new DbException("findById rolled back! caused by: "+ e.getMessage());
+			} catch (SQLException e1) {
+				throw new DbException("Error trying to roll back! caused by: "+ e1.getMessage());
+			}
+		} 
 		finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
@@ -132,6 +160,7 @@ public class DepartmentDaoJDBC implements  DepartmentDao{
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
+			conn.setAutoCommit(false);
 			st = conn.prepareStatement(
 				"SELECT * FROM department ORDER BY Name");
 			rs = st.executeQuery();
@@ -144,11 +173,17 @@ public class DepartmentDaoJDBC implements  DepartmentDao{
 				obj.setName(rs.getString("Name"));
 				list.add(obj);
 			}
+			conn.commit();
 			return list;
 		}
 		catch (SQLException e) {
-			throw new DbException(e.getMessage());
-		}
+			try {
+				conn.rollback();
+				throw new DbException("findAll rolled back! caused by: "+ e.getMessage());
+			} catch (SQLException e1) {
+				throw new DbException("Error trying to roll back! caused by: "+ e1.getMessage());
+			}
+		} 
 		finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
